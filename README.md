@@ -1,2 +1,3 @@
 # middledash
-collection of express convenience middleware
+
+Middledash is a library of convenience ExpressJS middleware functions.
