@@ -3,7 +3,6 @@
 Middledash is a library of convenience ExpressJS middleware functions.
 
 ## Table of Contents
-- [Table of Contents](#Table-of-Contents)
 - [Setup](#Setup)
 - [Middleware](#Middleware)
   - [transferHeaders](#transferHeaders)
@@ -19,13 +18,10 @@ npm install middledash
 The following middleware is provided by middledash:
 
 ### transferHeaders
-`transferHeaders` accepts a header name and transfers that header from the request object to the response object:
+`transferHeaders` accepts an arbitrary number of header names and transfers those respective headers from the request object to the response object. In case of a missing header, middledash calls `next` with HTTP code `400`.
 
 ```
-app.use(transferHeaders('x-correlation-id'));
-```
-
-`transferHeaders` accepts an arbitrary number of arguments:
-```
-app.use(transferHeaders('foo', 'bar'));
+// Example
+app.use(transferHeaders('x-correlation-id')); // single header
+app.use(transferHeaders('foo1', 'foo2', 'foo3'));     // arbitrary number of headers
 ```
