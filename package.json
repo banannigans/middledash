@@ -1,6 +1,6 @@
 {
   "name": "middledash",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "collection of express convenience middleware",
   "main": "index.js",
   "scripts": {
