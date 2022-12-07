@@ -12,7 +12,7 @@ describe('transferHeaders test', () => {
   it('should transfer specified individual header', async () => {
     expect.assertions(2);
 
-    const headerTransferrer = transferHeaders('foo1', 'foo2');
+    const headerTransferrer = transferHeaders({ requiredHeaders: ['foo1, foo2'] });
 
     app.use(headerTransferrer);
     app.get('/', (req, res, next) => {
@@ -31,7 +31,26 @@ describe('transferHeaders test', () => {
   it('should call next if given a header not in request headers ', async () => {
     expect.assertions(1);
 
-    const headerTransferrer = transferHeaders('foo3');
+    const headerTransferrer = transferHeaders({ requiredHeaders: ['foo3'] });
+
+    app.use(headerTransferrer);
+    app.use((err, req, res, next) => {
+      res.sendStatus(400);
+    });
+    
+    app.get('/', (req, res, next) => {
+      res.sendStatus(200);
+    });
+
+    const result = await request(app).get('/');
+
+    expect(result.res.statusCode).toEqual(400);
+  });
+
+  it('should mask error', async () => {
+    expect.assertions(1);
+
+    const headerTransferrer = transferHeaders({ requiredHeaders: ['foo3'] });
 
     app.use(headerTransferrer);
     app.use((err, req, res, next) => {

@@ -4,23 +4,34 @@ const createError = require('http-errors');
  * Transfers the specified header from the request object
  * and sets that header value in the response object
  *
- * @param {Array<string>} headerNames names of request headers
+ * @param {number} config.requiredHeaderResponseStatus status code to respond with when headers are not present
+ * @param {string} requiredHeaders names of required headers
+ * @param {string} optionalHeaders names of optional headers
+ * @param {string} hideMissingHeader mask verbose error message for missing header
  */
-const transferHeaders = (...headerNames) => {
+function transferHeaders({ requiredHeaders = '', optionalHeaders = '', hideMissingHeader = true }) {
   return (req, res, next) => {
-    for (let i = 0; i < headerNames.length; i += 1) {
-      const headerName = headerNames[i];
-      const headerValue = req.get(headerName);
+    const required = requiredHeaders.split(',').map(h => h.trim());
+    const optional = optionalHeaders.split(',').map(h => h.trim());
 
+    required.forEach(header => {
+      const headerValue = req.get(header);
       if (!headerValue && headerValue !== null) {
-        return next(createError(400, new ReferenceError(`req.get(${headerName}) is undefined`)));
+        const errMsg = hideMissingHeader
+          ? 'Bad Request'
+          : new ReferenceError(`req.get(${header}) is undefined`);
+        return next(createError(404, errMsg));
       }
+      res.set(header, headerValue);
+    });
 
-      res.set(headerName, headerValue);
-    }
+    optional.forEach(header => {
+      const headerValue = req.get(header);
+      if (headerValue) res.set(header, headerValue);
+    });
 
     next();
   };
-};
+}
 
 module.exports = { transferHeaders };
