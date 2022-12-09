@@ -18,7 +18,6 @@ function transferHeaders({ requiredHeaders = '', optionalHeaders = '', hideMissi
     .split(',')
     .map(h => h.trim())
     .filter(h => h !== '');
-
   return function middleware(req, res, next) {
     try {
       required.forEach(header => {
