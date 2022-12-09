@@ -10,9 +10,9 @@ describe('transferHeaders test', () => {
     app.use(bodyParser.urlencoded());
     app.use(bodyParser.json());
   });
-  test('should transfer specified individual header', async () => {
+  test('should transfer specified required and optional headers', async () => {
     expect.assertions(3);
-    app.use(transferHeaders({ requiredHeaders: 'foo1, foo2' }));
+    app.use(transferHeaders({ requiredHeaders: 'foo1', optionalHeaders: 'foo2' }));
 
     app.get('/test', (req, res) => {
       res.sendStatus(200);
@@ -90,5 +90,18 @@ describe('transferHeaders test', () => {
     expect(result.res.statusCode).toEqual(200);
     expect(result.headers.foo5).toEqual('bar5');
     expect(result.headers.foo6).toBe(undefined);
+  });
+  it('should throw when parsing headers with improper typing', async () => {
+    expect.assertions(1);
+    try {
+      const middleware = transferHeaders({});
+      middleware({
+        headers: () => {
+          throw Error('implementation');
+        },
+      });
+    } catch (error) {
+      expect(error).not.toBeUndefined();
+    }
   });
 });
