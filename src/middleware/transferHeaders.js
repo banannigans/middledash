@@ -1,4 +1,4 @@
-const { BadRequest } = require('http-errors');
+const createError = require('http-errors');
 
 /**
  * Transfers the specified header from the request object
@@ -10,27 +10,37 @@ const { BadRequest } = require('http-errors');
  */
 
 function transferHeaders({ requiredHeaders = '', optionalHeaders = '', hideMissingHeader = true }) {
-  const required = requiredHeaders.split(',').map(h => h.trim());
-  const optional = optionalHeaders.split(',').map(h => h.trim());
+  const required = requiredHeaders
+    .split(',')
+    .map(h => h.trim())
+    .filter(h => h !== '');
+  const optional = optionalHeaders
+    .split(',')
+    .map(h => h.trim())
+    .filter(h => h !== '');
 
   return function middleware(req, res, next) {
-    required.forEach(header => {
-      const headerValue = req.get(header);
-      if (!headerValue && headerValue !== null) {
-        const errMsg = hideMissingHeader
-          ? 'Bad Request'
-          : new ReferenceError(`header ${header} is undefined`);
-        return next(BadRequest(errMsg));
-      }
-      res.set(header, headerValue);
-    });
+    try {
+      required.forEach(header => {
+        const headerValue = req.get(header);
+        if (!headerValue && headerValue !== null) {
+          const errMsg = hideMissingHeader
+            ? 'Bad Request'
+            : new ReferenceError(`header ${header} is undefined`);
+          return next(createError(400, errMsg));
+        }
+        res.set(header, headerValue);
+      });
 
-    optional.forEach(header => {
-      const headerValue = req.get(header);
-      if (headerValue) res.set(header, headerValue);
-    });
+      optional.forEach(header => {
+        const headerValue = req.get(header);
+        if (headerValue) res.set(header, headerValue);
+      });
 
-    next();
+      return next();
+    } catch (e) {
+      return next(e);
+    }
   };
 }
 

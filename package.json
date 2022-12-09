@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/banannigans/middledash#readme",
   "dependencies": {
+    "body-parser": "^1.20.1",
     "express": "4.16.4",
     "http-errors": "1.7.2",
     "supertest": "4.0.2"
